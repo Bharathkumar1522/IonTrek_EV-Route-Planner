@@ -384,7 +384,7 @@ const Sidebar = React.memo(function Sidebar() {
                         </div>
                         {st.connections && st.connections.length > 0 && (
                           <div className="flex flex-wrap gap-1.5 mt-2">
-                            {st.connections.map((c: any, i: number) => (
+                            {st.connections.map((c, i: number) => (
                               <span key={i} className="text-[9px] font-semibold tracking-wide uppercase px-2 py-0.5 rounded-full bg-[var(--surface-1)] border border-[var(--border-subtle)] text-[var(--text-secondary)]">
                                 {c.Level ? `L${c.Level.ID}` : 'Plug'} • {c.PowerKW ? `${c.PowerKW}kW` : '15kW'}
                               </span>

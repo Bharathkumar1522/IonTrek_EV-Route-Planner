@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useId } from 'react';
+import React, { useMemo, useId, useEffect, useRef, useCallback } from 'react';
 import {
   ComposedChart, Area, Line, XAxis, YAxis,
   CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine
@@ -73,15 +73,21 @@ const DrainChart = React.memo(function DrainChart() {
             <div style={{ fontSize: 18, fontWeight: 700, color: battColor, fontVariantNumeric: 'tabular-nums' }}>{battery}%</div>
           </div>
           <div style={{ width: 1, background: tooltipBorder }} />
-          <div>
-            <div style={{ fontSize: 9, color: 'var(--text-muted)', textTransform: 'uppercase' as const, letterSpacing: '0.04em', marginBottom: 3 }}>Elevation</div>
-            <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-secondary)', fontVariantNumeric: 'tabular-nums' }}>{elev}m</div>
-          </div>
-          <div style={{ width: 1, background: tooltipBorder }} />
-          <div>
-            <div style={{ fontSize: 9, color: 'var(--text-muted)', textTransform: 'uppercase' as const, letterSpacing: '0.04em', marginBottom: 3 }}>Temp</div>
-            <div style={{ fontSize: 18, fontWeight: 700, color: '#f97316', fontVariantNumeric: 'tabular-nums' }}>{temp}°C</div>
-          </div>
+          {elev !== undefined && (
+            <>
+              <div>
+                <div style={{ fontSize: 9, color: 'var(--text-muted)', textTransform: 'uppercase' as const, letterSpacing: '0.04em', marginBottom: 3 }}>Elevation</div>
+                <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-secondary)', fontVariantNumeric: 'tabular-nums' }}>{elev}m</div>
+              </div>
+              <div style={{ width: 1, background: tooltipBorder }} />
+            </>
+          )}
+          {temp !== undefined && (
+            <div>
+              <div style={{ fontSize: 9, color: 'var(--text-muted)', textTransform: 'uppercase' as const, letterSpacing: '0.04em', marginBottom: 3 }}>Temp</div>
+              <div style={{ fontSize: 18, fontWeight: 700, color: '#f97316', fontVariantNumeric: 'tabular-nums' }}>{temp}°C</div>
+            </div>
+          )}
         </div>
       </div>
     );
@@ -90,6 +96,26 @@ const DrainChart = React.memo(function DrainChart() {
 
   const lastBattery = chartData[chartData.length - 1]?.predictedBatteryPercent ?? 0;
   const lastBattColor = getBatteryColor(lastBattery);
+
+  const rafIdRef = useRef<number | null>(null);
+
+  const handleMouseMove = useCallback((e: any) => {
+    if (rafIdRef.current) return;
+    rafIdRef.current = requestAnimationFrame(() => {
+      rafIdRef.current = null;
+      if (e && e.activePayload && e.activePayload.length > 0) {
+        setHoveredDistanceKm(e.activePayload[0].payload.distanceKm);
+      }
+    });
+  }, [setHoveredDistanceKm]);
+
+  useEffect(() => {
+    return () => {
+      if (rafIdRef.current) {
+        cancelAnimationFrame(rafIdRef.current);
+      }
+    };
+  }, []);
 
   return (
     <div style={{ width: '100%', height: '100%', padding: '14px 18px 10px', display: 'flex', flexDirection: 'column' }}>
@@ -124,21 +150,7 @@ const DrainChart = React.memo(function DrainChart() {
           <ComposedChart 
             data={chartData} 
             margin={{ top: 10, right: 10, bottom: 0, left: -20 }}
-            onMouseMove={
-              // Throttle to 50ms to prevent heavy re-renders while swiping
-              useMemo(() => {
-                let rafId: number | null = null;
-                return (e: any) => {
-                  if (rafId) return;
-                  rafId = requestAnimationFrame(() => {
-                    rafId = null;
-                    if (e && e.activePayload && e.activePayload.length > 0) {
-                      setHoveredDistanceKm(e.activePayload[0].payload.distanceKm);
-                    }
-                  });
-                };
-              }, [setHoveredDistanceKm])
-            }
+            onMouseMove={handleMouseMove}
             onMouseLeave={() => setHoveredDistanceKm(null)}
           >
             <defs>

@@ -56,7 +56,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" data-theme="light" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <head>
         {/* Preconnect to external APIs for faster first load */}
         <link rel="preconnect" href="https://api.maptiler.com" crossOrigin="anonymous" />
@@ -69,6 +69,24 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="https://api.openchargemap.io" />
       </head>
       <body className={`${inter.variable} ${dmSans.variable}`} suppressHydrationWarning>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              try {
+                let theme = localStorage.getItem('theme-store');
+                if (theme) {
+                  let parsed = JSON.parse(theme);
+                  if (parsed.state && parsed.state.theme) {
+                    document.documentElement.setAttribute('data-theme', parsed.state.theme);
+                  }
+                } else {
+                  let pref = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+                  document.documentElement.setAttribute('data-theme', pref);
+                }
+              } catch (e) {}
+            `,
+          }}
+        />
         <ThemeProvider>
           {children}
         </ThemeProvider>

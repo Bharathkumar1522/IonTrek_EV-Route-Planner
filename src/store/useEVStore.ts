@@ -23,7 +23,7 @@ export const INDIA_EVS: EVModel[] = [
 
 export const getEVTypeInfo = (id: string) => {
   if (id.includes('mg-comet')) return { color: '#8b5cf6', type: 'Compact Hatchback · Electric' };
-  if (id.includes('tiago')) return { color: '#0ea5e9', type: 'Hatchback ·  Electric' };
+  if (id.includes('tiago')) return { color: '#0ea5e9', type: 'Hatchback · Electric' };
   if (id.includes('nexon') || id.includes('punch') || id.includes('xuv400')) return { color: '#0a8f9e', type: 'Compact SUV · Electric' };
   if (id.includes('curvv') || id.includes('zs') || id.includes('atto3')) return { color: '#ca8a04', type: 'SUV · Electric' };
   return { color: '#10b981', type: 'Premium Crossover · Electric' };
@@ -191,7 +191,7 @@ export const useEVStore = create<EVStore>((set, get) => ({
       }
 
       // Accurately map real coordinates using the raw polyline geometry from OSRM
-      let mappedCoords: [number, number] = [0, 0];
+      let mappedCoords: [number, number] | null = null;
       if (state.route.polyline && Array.isArray(state.route.polyline) && state.route.polyline.length > 0) {
         const polyLen = state.route.polyline.length;
         const index = Math.min(Math.floor(progress * polyLen), polyLen - 1);

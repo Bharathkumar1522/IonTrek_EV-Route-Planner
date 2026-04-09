@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState, useEffect, lazy, Suspense } from 'react';
+import React, { useState, useEffect, lazy, Suspense, useRef } from 'react';
 import RouteMap from '@/components/map/RouteMapClient';
 import Sidebar from '@/components/dashboard/Sidebar';
+import LoadingScreen from '@/components/LoadingScreen';
 import { useEVStore } from '@/store/useEVStore';
 import { Map, SlidersHorizontal, CheckCircle2, AlertTriangle, X, Zap } from 'lucide-react';
 
@@ -25,9 +26,31 @@ export default function Home() {
   const { route, toastMessage, setToastMessage } = useEVStore();
   const [isMobileExpanded, setIsMobileExpanded] = useState(true);
   const [visibleToast, setVisibleToast] = useState<string | null>(null);
+  // Show loading screen on first visit per session
+  const [appReady, setAppReady] = useState(false);
+
+  const mountRef = useRef(false);
+
+  // Show the loading screen only on first session visit
+  useEffect(() => {
+    const seen = sessionStorage.getItem('iontrek-loaded');
+    if (seen) {
+      setAppReady(true);
+    }
+    // else: LoadingScreen will call onDone → setAppReady(true) + mark session
+  }, []);
+
+  const handleLoadDone = () => {
+    sessionStorage.setItem('iontrek-loaded', '1');
+    setAppReady(true);
+  };
 
   // Auto-collapse on mobile when a route is successfully calculated
   useEffect(() => {
+    if (!mountRef.current) {
+      mountRef.current = true;
+      return;
+    }
     if (route.distanceKm > 0) {
       setIsMobileExpanded(false);
     }
@@ -46,7 +69,11 @@ export default function Home() {
   }, [toastMessage, setToastMessage]);
 
   return (
-    <main className="relative w-screen h-screen overflow-hidden bg-[var(--surface-0)]">
+    <>
+      {/* Loading screen — shown until app is ready */}
+      {!appReady && <LoadingScreen onDone={handleLoadDone} />}
+
+      <main className="relative w-screen h-screen overflow-hidden bg-[var(--surface-0)]">
       
       {/* Full-screen map layer */}
       <div className="absolute inset-0 z-0">
@@ -161,5 +188,6 @@ export default function Home() {
       )}
 
     </main>
+    </>
   );
 }

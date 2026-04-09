@@ -177,10 +177,13 @@ const RouteMap = React.memo(function RouteMap() {
   useEffect(() => {
     if (!mapReady || !mapRef.current || !route.startCoordinates || !route.endCoordinates) return;
 
+    const controller = new AbortController();
+    const signal = controller.signal;
+
     async function update() {
       try {
-        const data = await fetchRoute(route.startCoordinates!, route.endCoordinates!, route.waypoints);
-        if (!data?.routes?.[0] || !mapRef.current) return;
+        const data = await fetchRoute(route.startCoordinates!, route.endCoordinates!, route.waypoints, signal);
+        if (!data?.routes?.[0] || !mapRef.current || signal.aborted) return;
 
         const info = data.routes[0];
         const geojson = info.geometry;
@@ -202,18 +205,23 @@ const RouteMap = React.memo(function RouteMap() {
 
         const bbox = bounds.toArray();
         const [st, startTemp, endTemp] = await Promise.all([
-          fetchChargingStations(bbox[0][1], bbox[0][0], bbox[1][1], bbox[1][0], geojson.coordinates),
-          fetchRouteWeather(route.startCoordinates![1], route.startCoordinates![0]),
-          fetchRouteWeather(route.endCoordinates![1], route.endCoordinates![0]),
+          fetchChargingStations(bbox[0][1], bbox[0][0], bbox[1][1], bbox[1][0], geojson.coordinates, signal),
+          fetchRouteWeather(route.startCoordinates![1], route.startCoordinates![0], signal),
+          fetchRouteWeather(route.endCoordinates![1], route.endCoordinates![0], signal),
         ]);
+
+        if (signal.aborted) return;
 
         setRoute({ distanceKm: info.distance / 1000, polyline: geojson.coordinates, stations: st });
         generateRoutePoints(startTemp, endTemp);
-      } catch (err) {
-        console.error('Route update failed:', err);
+      } catch (err: any) {
+        if (err.name !== 'AbortError') {
+          console.error('Route update failed:', err);
+        }
       }
     }
     update();
+    return () => controller.abort();
   }, [route.startCoordinates, route.endCoordinates, route.waypoints, mapReady, setRoute, generateRoutePoints]);
 
   // Reset autoWaypointInserted when the user picks a new origin/destination
@@ -233,7 +241,7 @@ const RouteMap = React.memo(function RouteMap() {
 
     // Find the earliest point where battery fell below 15%
     const criticalPoint = pts.find(p => p.predictedBatteryPercent <= 15);
-    if (!criticalPoint || criticalPoint.location[0] === 0) return;
+    if (!criticalPoint || !criticalPoint.location) return;
 
     // Pick the geographically nearest station to the critical point
     const [cLng, cLat] = criticalPoint.location;

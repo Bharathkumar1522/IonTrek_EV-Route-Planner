@@ -1,10 +1,11 @@
-import withPWAInit from "@ducanh2912/next-pwa";
+import withSerwistInit from "@serwist/next";
 
-const withPWA = withPWAInit({
-  dest: "public",
-  disable: process.env.NODE_ENV === "development",
+const withSerwist = withSerwistInit({
+  swSrc: "src/worker/index.ts",
+  swDest: "public/sw.js",
+  disable: process.env.NODE_ENV !== "production",
   register: true,
-  skipWaiting: true,
+  reloadOnOnline: true,
 });
 
 /** @type {import('next').NextConfig} */
@@ -55,4 +56,4 @@ const nextConfig = {
   serverExternalPackages: ["maplibre-gl"],
 };
 
-export default withPWA(nextConfig);
+export default withSerwist(nextConfig);

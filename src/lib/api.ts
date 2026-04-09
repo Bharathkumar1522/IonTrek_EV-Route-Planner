@@ -7,13 +7,15 @@ export async function fetchChargingStations(
   minLng: number,
   maxLat: number,
   maxLng: number,
-  routeCoords: [number, number][] = []
+  routeCoords: [number, number][] = [],
+  signal?: AbortSignal
 ): Promise<Station[]> {
   try {
     const boundingBox = `(${minLat},${minLng}),(${maxLat},${maxLng})`;
     
     const response = await fetch(
-      `https://api.openchargemap.io/v3/poi?key=${OCM_API_KEY}&output=json&boundingbox=${boundingBox}&maxresults=50`
+      `https://api.openchargemap.io/v3/poi?key=${OCM_API_KEY}&output=json&boundingbox=${boundingBox}&maxresults=50`,
+      { signal }
     );
 
     if (!response.ok) {
@@ -28,13 +30,18 @@ export async function fetchChargingStations(
     }
     
     return data
-      .filter((poi: any) => poi?.ID != null && poi?.AddressInfo != null)
+      .filter((poi: any) => 
+        poi?.ID != null && 
+        poi?.AddressInfo != null && 
+        Number.isFinite(poi.AddressInfo.Latitude) && 
+        Number.isFinite(poi.AddressInfo.Longitude)
+      )
       .map((poi: any) => ({
         id: String(poi.ID),
-        title: poi.AddressInfo?.Title ?? 'Unknown Station',
-        latitude: poi.AddressInfo?.Latitude ?? 0,
-        longitude: poi.AddressInfo?.Longitude ?? 0,
-        address: poi.AddressInfo?.AddressLine1 ?? null,
+        title: poi.AddressInfo.Title ?? 'Unknown Station',
+        latitude: poi.AddressInfo.Latitude,
+        longitude: poi.AddressInfo.Longitude,
+        address: poi.AddressInfo.AddressLine1 ?? null,
         connections: poi.Connections ?? [],
       }));
 
@@ -88,13 +95,14 @@ function generateMockStations(routeCoords: [number, number][], minLat: number, m
   return stations;
 }
 
-export async function fetchRoute(start: [number, number], end: [number, number], waypoints: [number, number][] = []) {
+export async function fetchRoute(start: [number, number], end: [number, number], waypoints: [number, number][] = [], signal?: AbortSignal) {
   try {
     const coordsList = [start, ...waypoints, end];
     const coordsString = coordsList.map(c => `${c[0]},${c[1]}`).join(';');
     
     const response = await fetch(
-      `https://router.project-osrm.org/route/v1/driving/${coordsString}?overview=full&geometries=geojson`
+      `https://router.project-osrm.org/route/v1/driving/${coordsString}?overview=full&geometries=geojson`,
+      { signal }
     );
     
     if (!response.ok) throw new Error('Failed to fetch route');
@@ -107,11 +115,12 @@ export async function fetchRoute(start: [number, number], end: [number, number],
 }
 
 // Fetch temperature using Open-Meteo (free API, no key)
-export async function fetchRouteWeather(lat: number, lng: number): Promise<number> {
+export async function fetchRouteWeather(lat: number, lng: number, signal?: AbortSignal): Promise<number> {
   try {
     // We fetch current temperature for a specific coordinate
     const response = await fetch(
-      `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=temperature_2m`
+      `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=temperature_2m`,
+      { signal }
     );
     if (!response.ok) return 25; // fallback to 25C
     const data = await response.json();

@@ -1,6 +1,20 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    caches.open('maptiler-cache').then(async (cache) => {
+      const keys = await cache.keys();
+      if (keys.length > 500) {
+        // Enforce max 500 tiles (approx ~20-30MB)
+        for (let i = 0; i < keys.length - 500; i++) {
+          await cache.delete(keys[i]);
+        }
+      }
+    })
+  );
+});
+
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
@@ -12,8 +26,8 @@ self.addEventListener('fetch', (event) => {
           event.waitUntil(
             fetch(event.request).then((networkResponse) => {
               if (networkResponse.ok) {
-                caches.open('maptiler-cache').then((cache) => {
-                  cache.put(event.request, networkResponse.clone());
+                return caches.open('maptiler-cache').then((cache) => {
+                  return cache.put(event.request, networkResponse.clone());
                 });
               }
             }).catch(() => {})
@@ -25,9 +39,11 @@ self.addEventListener('fetch', (event) => {
           .then((networkResponse) => {
             if (networkResponse.ok) {
               const responseClone = networkResponse.clone();
-              caches.open('maptiler-cache').then((cache) => {
-                cache.put(event.request, responseClone);
-              });
+              event.waitUntil(
+                caches.open('maptiler-cache').then((cache) => {
+                  return cache.put(event.request, responseClone);
+                })
+              );
             }
             return networkResponse;
           })
@@ -50,9 +66,11 @@ self.addEventListener('fetch', (event) => {
           .then((networkResponse) => {
             if (networkResponse.ok) {
               const responseClone = networkResponse.clone();
-              caches.open('ocm-cache').then((cache) => {
-                cache.put(event.request, responseClone);
-              });
+              event.waitUntil(
+                caches.open('ocm-cache').then((cache) => {
+                  return cache.put(event.request, responseClone);
+                })
+              );
             }
             return networkResponse;
           })
@@ -73,9 +91,11 @@ self.addEventListener('fetch', (event) => {
           .then((networkResponse) => {
             if (networkResponse.ok) {
               const responseClone = networkResponse.clone();
-              caches.open('osrm-cache').then((cache) => {
-                cache.put(event.request, responseClone);
-              });
+              event.waitUntil(
+                caches.open('osrm-cache').then((cache) => {
+                  return cache.put(event.request, responseClone);
+                })
+              );
             }
             return networkResponse;
           })

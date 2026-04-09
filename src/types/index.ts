@@ -21,7 +21,7 @@ export interface RoutePoint {
   elevationMeters: number;
   temperatureC: number;
   predictedBatteryPercent: number;
-  location: [number, number]; // [lng, lat]
+  location: [number, number] | null; // [lng, lat]
 }
 
 export interface EnvironmentVariables {
@@ -30,11 +30,16 @@ export interface EnvironmentVariables {
   rangeMode: 'arai' | 'real'; // whether to apply extreme realistic penalty discounting
 }
 
+export interface ChargerConnection {
+  Level?: { ID: number };
+  PowerKW?: number;
+}
+
 export interface Station {
   id: string;
   title: string;
   latitude: number;
   longitude: number;
   address: string;
-  connections: any[];
+  connections: ChargerConnection[];
 }
