@@ -14,7 +14,7 @@ const RouteMap = React.memo(function RouteMap() {
   const markersRef = useRef<maplibregl.Marker[]>([]);
   const telemetryMarkerRef = useRef<maplibregl.Marker | null>(null);
 
-  const { route, setRoute, generateRoutePoints, hoveredDistanceKm, addWaypoint, setToastMessage } = useEVStore();
+  const { route, setRoute, generateRoutePoints, hoveredDistanceKm, addWaypoint, setToastMessage, setMapInitialized } = useEVStore();
   const { theme } = useThemeStore();
   const stations = route.stations || [];
   const [mapReady, setMapReady] = useState(false);
@@ -98,6 +98,7 @@ const RouteMap = React.memo(function RouteMap() {
       });
 
       setMapReady(true);
+      setMapInitialized(true);
     });
 
     mapRef.current = map;

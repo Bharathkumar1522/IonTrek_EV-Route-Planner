@@ -55,6 +55,10 @@ interface EVStore {
   // Toast / Notification
   toastMessage: string | null;
   setToastMessage: (msg: string | null) => void;
+
+  // App initialization signal
+  mapInitialized: boolean;
+  setMapInitialized: (val: boolean) => void;
 }
 
 export const useEVStore = create<EVStore>((set, get) => ({
@@ -105,6 +109,9 @@ export const useEVStore = create<EVStore>((set, get) => ({
 
   toastMessage: null,
   setToastMessage: (msg) => set({ toastMessage: msg }),
+
+  mapInitialized: false,
+  setMapInitialized: (val) => set({ mapInitialized: val }),
 
   calculateRangeAtTemp: (tempC: number) => {
     const { selectedEV, environment } = get();
