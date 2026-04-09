@@ -33,16 +33,7 @@ const DrainChart = React.memo(function DrainChart() {
 
   const chartData = route.routePoints || [];
 
-  if (chartData.length === 0) {
-    return (
-      <div className="chart-empty">
-        <div className="chart-empty-icon">
-          <Navigation size={20} />
-        </div>
-        <div className="chart-empty-text">Set a route to see telemetry</div>
-      </div>
-    );
-  }
+  // ── ALL hooks must be declared before any early return (Rules of Hooks) ──
 
   const CustomTooltip = useMemo(() => function TooltipContent({ active, payload, label }: any) {
     if (!active || !payload?.length) return null;
@@ -116,6 +107,17 @@ const DrainChart = React.memo(function DrainChart() {
       }
     };
   }, []);
+
+  if (chartData.length === 0) {
+    return (
+      <div className="chart-empty">
+        <div className="chart-empty-icon">
+          <Navigation size={20} />
+        </div>
+        <div className="chart-empty-text">Set a route to see telemetry</div>
+      </div>
+    );
+  }
 
   return (
     <div style={{ width: '100%', height: '100%', padding: '14px 18px 10px', display: 'flex', flexDirection: 'column' }}>
