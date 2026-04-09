@@ -6,6 +6,7 @@ import Sidebar from '@/components/dashboard/Sidebar';
 import LoadingScreen from '@/components/LoadingScreen';
 import { useEVStore } from '@/store/useEVStore';
 import { Map, SlidersHorizontal, CheckCircle2, AlertTriangle, X, Zap } from 'lucide-react';
+import { useHaptic } from '@/lib/useHaptic';
 
 // Lazy load the chart — it's below the fold and uses heavyweight Recharts
 const DrainChart = lazy(() => import('@/components/chart/DrainChart'));
@@ -26,8 +27,8 @@ export default function Home() {
   const { route, toastMessage, setToastMessage } = useEVStore();
   const [isMobileExpanded, setIsMobileExpanded] = useState(true);
   const [visibleToast, setVisibleToast] = useState<string | null>(null);
-  // Show loading screen on first visit per session
   const [appReady, setAppReady] = useState(false);
+  const { tick, light } = useHaptic();
 
   const mountRef = useRef(false);
 
@@ -100,7 +101,7 @@ export default function Home() {
             {route.distanceKm > 0 && isMobileExpanded && (
               <div className="absolute bottom-3 left-1/2 -translate-x-1/2 md:hidden">
                 <button 
-                  onClick={() => setIsMobileExpanded(false)}
+                  onClick={() => { light(); setIsMobileExpanded(false); }}
                   className="bg-[var(--accent)] text-white px-6 py-2.5 rounded-full font-bold text-[13px] tracking-wide shadow-lg flex items-center gap-2 hover:opacity-90 active:scale-95 transition-all"
                 >
                   <Map size={16} /> View Route Map
@@ -114,7 +115,7 @@ export default function Home() {
         {!isMobileExpanded && (
           <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50 md:hidden pointer-events-auto w-full px-4 flex justify-center">
             <button 
-              onClick={() => setIsMobileExpanded(true)} 
+              onClick={() => { tick(); setIsMobileExpanded(true); }} 
               className="glass-panel w-full max-w-[320px] px-4 py-3 flex items-center justify-between shadow-[var(--shadow-elevated)] ring-1 ring-[var(--border-subtle)] hover:bg-[var(--surface-1)] transition-colors"
             >
               <div className="flex items-center gap-3">
@@ -178,7 +179,7 @@ export default function Home() {
 
             {/* Dismiss */}
             <button
-              onClick={() => { setVisibleToast(null); setToastMessage(null); }}
+              onClick={() => { tick(); setVisibleToast(null); setToastMessage(null); }}
               className="flex-shrink-0 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors mt-0.5"
             >
               <X size={14} />

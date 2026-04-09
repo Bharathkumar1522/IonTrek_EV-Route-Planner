@@ -16,7 +16,7 @@ import Image from 'next/image';
 const Sidebar = React.memo(function Sidebar() {
   const { selectedEV, environment, setEnvironment, route, setRoute, calculateRangeAtTemp, addWaypoint } = useEVStore();
   const { theme, toggleTheme } = useThemeStore();
-  const { tick, light, medium } = useHaptic();
+  const { tick, light, medium, success } = useHaptic();
   const isLight = theme === 'light';
 
   const [activeTab, setActiveTab] = useState<'planner' | 'stations'>('planner');
@@ -83,7 +83,7 @@ const Sidebar = React.memo(function Sidebar() {
           </div>
           <button
             className="icon-btn"
-            onClick={toggleTheme}
+            onClick={() => { tick(); toggleTheme(); }}
             title={isLight ? 'Switch to Dark Mode' : 'Switch to Light Mode'}
             style={{ color: isLight ? 'var(--accent)' : 'var(--warning)' }}
           >
@@ -94,7 +94,7 @@ const Sidebar = React.memo(function Sidebar() {
         {/* ─── TABS ─── */}
         <div className="flex rounded-[10px] p-1 bg-[var(--surface-2)] border border-[var(--border-subtle)] mt-1 mb-4">
           <button
-            onClick={() => setActiveTab('planner')}
+            onClick={() => { tick(); setActiveTab('planner'); }}
             className={`flex-1 py-1.5 text-[12px] font-semibold rounded-[6px] transition-all ${
               activeTab === 'planner'
                 ? 'bg-[var(--surface-1)] text-[var(--text-primary)] shadow-sm'
@@ -104,7 +104,7 @@ const Sidebar = React.memo(function Sidebar() {
             Trip Planner
           </button>
           <button
-            onClick={() => setActiveTab('stations')}
+            onClick={() => { tick(); setActiveTab('stations'); }}
             className={`flex-1 py-1.5 text-[12px] font-semibold rounded-[6px] transition-all flex items-center justify-center gap-1.5 ${
               activeTab === 'stations'
                 ? 'bg-[var(--surface-1)] text-[var(--text-primary)] shadow-sm'
@@ -264,7 +264,7 @@ const Sidebar = React.memo(function Sidebar() {
               {/* Range Toggle UI */}
               <div className="flex rounded-[8px] p-1 bg-[var(--surface-3)] border border-[var(--border-subtle)] mb-4">
                 <button
-                  onClick={() => setEnvironment({ rangeMode: 'arai' })}
+                  onClick={() => { tick(); setEnvironment({ rangeMode: 'arai' }); }}
                   className={`flex-1 py-1.5 text-[11px] font-bold tracking-wider uppercase rounded-[6px] transition-all ${
                     environment.rangeMode === 'arai'
                       ? 'bg-[var(--surface-1)] text-[var(--accent)] shadow-sm border border-[var(--accent-subtle)]'
@@ -274,7 +274,7 @@ const Sidebar = React.memo(function Sidebar() {
                   ARAI Factory
                 </button>
                 <button
-                  onClick={() => setEnvironment({ rangeMode: 'real' })}
+                  onClick={() => { tick(); setEnvironment({ rangeMode: 'real' }); }}
                   className={`flex-1 py-1.5 text-[11px] font-bold tracking-wider uppercase rounded-[6px] transition-all ${
                     environment.rangeMode === 'real'
                       ? 'bg-[var(--surface-1)] text-[var(--success)] shadow-sm border border-[var(--success-subtle)]'
@@ -395,6 +395,7 @@ const Sidebar = React.memo(function Sidebar() {
                         )}
                         <button 
                           onClick={() => {
+                            success();
                             addWaypoint([st.longitude, st.latitude]);
                             setActiveTab('planner');
                           }}

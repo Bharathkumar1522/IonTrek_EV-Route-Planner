@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { MapPin, Loader2, Search } from 'lucide-react';
 import { searchLocations, LocationFeature } from '@/lib/maptiler';
+import { useHaptic } from '@/lib/useHaptic';
 
 interface LocationSearchProps {
   placeholder: string;
@@ -15,8 +16,8 @@ export default function LocationSearch({ placeholder, onSelect }: LocationSearch
   const [isSearching, setIsSearching] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
-  // Flag to skip the next search when query is set programmatically (after selection)
   const justSelectedRef = useRef(false);
+  const { success } = useHaptic();
 
   useEffect(() => {
     // If the query was just set by a selection, skip searching
@@ -63,6 +64,7 @@ export default function LocationSearch({ placeholder, onSelect }: LocationSearch
     setQuery(feature.place_name);
     setResults([]);
     setIsOpen(false);
+    success();
     onSelect(feature);
   };
 

@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Search, Car, ChevronDown } from 'lucide-react';
 import { useEVStore, getEVTypeInfo } from '@/store/useEVStore';
 import { EVModel } from '@/types';
+import { useHaptic } from '@/lib/useHaptic';
 
 export default function VehicleSearch() {
   const { models, selectedEV, selectEV } = useEVStore();
@@ -12,6 +13,7 @@ export default function VehicleSearch() {
   const [isOpen, setIsOpen] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const { light } = useHaptic();
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -37,6 +39,7 @@ export default function VehicleSearch() {
   }, [query, models]);
 
   const handleSelect = (ev: EVModel) => {
+    light();
     selectEV(ev.id);
     setIsOpen(false);
     setQuery('');
