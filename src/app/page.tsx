@@ -46,17 +46,6 @@ export default function Home() {
     setAppReady(true);
   };
 
-  // Auto-collapse on mobile when a route is successfully calculated
-  useEffect(() => {
-    if (!mountRef.current) {
-      mountRef.current = true;
-      return;
-    }
-    if (route.distanceKm > 0) {
-      setIsMobileExpanded(false);
-    }
-  }, [route.distanceKm]);
-
   // Show toast and auto-dismiss after 6s
   useEffect(() => {
     if (toastMessage) {

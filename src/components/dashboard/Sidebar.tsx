@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, lazy, Suspense } from 'react';
 import { useEVStore, getEVTypeInfo } from '@/store/useEVStore';
 import { useThemeStore } from '@/store/useThemeStore';
 import {
@@ -12,6 +12,20 @@ import VehicleSearch from './VehicleSearch';
 import { LocationFeature } from '@/lib/maptiler';
 import { useHaptic } from '@/lib/useHaptic';
 import Image from 'next/image';
+
+const DrainChart = lazy(() => import('@/components/chart/DrainChart'));
+
+function ChartFallback() {
+  return (
+    <div style={{
+      width: '100%', height: '100%',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      color: 'var(--text-muted)', fontSize: 12,
+    }}>
+      Loading telemetry…
+    </div>
+  );
+}
 
 const Sidebar = React.memo(function Sidebar() {
   const { selectedEV, environment, setEnvironment, route, setRoute, calculateRangeAtTemp, addWaypoint } = useEVStore();
@@ -401,6 +415,12 @@ const Sidebar = React.memo(function Sidebar() {
                   {/* Battery drain bar */}
                   <div className="h-[3px] bg-[var(--surface-3)]">
                     <div className="h-full transition-all duration-500" style={{ width: `${rangePercent}%`, background: ringColor }} />
+                  </div>
+                  {/* Embedded Mobile Chart */}
+                  <div className="h-[220px] bg-[var(--surface-0)] border-t border-[var(--border-subtle)]">
+                    <Suspense fallback={<ChartFallback />}>
+                      <DrainChart />
+                    </Suspense>
                   </div>
                 </div>
               )}
