@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useEVStore, getEVTypeInfo } from '@/store/useEVStore';
 import { useThemeStore } from '@/store/useThemeStore';
 import {
@@ -23,6 +23,22 @@ const Sidebar = React.memo(function Sidebar() {
 
   const [startLoc, setStartLoc] = useState<LocationFeature | null>(null);
   const [endLoc, setEndLoc] = useState<LocationFeature | null>(null);
+
+  // Scroll hint — hide once user has scrolled near the bottom
+  const bodyRef = useRef<HTMLDivElement>(null);
+  const [showScrollHint, setShowScrollHint] = useState(true);
+  const handleBodyScroll = useCallback(() => {
+    const el = bodyRef.current;
+    if (!el) return;
+    setShowScrollHint(el.scrollTop + el.clientHeight < el.scrollHeight - 32);
+  }, []);
+  useEffect(() => {
+    const el = bodyRef.current;
+    if (!el) return;
+    handleBodyScroll();
+    el.addEventListener('scroll', handleBodyScroll, { passive: true });
+    return () => el.removeEventListener('scroll', handleBodyScroll);
+  }, [handleBodyScroll]);
 
   useEffect(() => {
     if (startLoc && endLoc) {
@@ -118,7 +134,7 @@ const Sidebar = React.memo(function Sidebar() {
       </div>
 
       {/* ─── SCROLLABLE BODY ─── */}
-      <div className="sidebar-body pb-6 relative">
+      <div className="sidebar-body pb-6 relative" ref={bodyRef} onScroll={handleBodyScroll}>
         
         {activeTab === 'planner' ? (
           <>
@@ -355,6 +371,39 @@ const Sidebar = React.memo(function Sidebar() {
                   </span>
                 </div>
               )}
+
+              {/* ══ MOBILE TELEMETRY STRIP (chart is desktop-only) ══ */}
+              {hasDistance && (
+                <div className="md:hidden mt-[14px] rounded-[10px] border border-[var(--border-subtle)] overflow-hidden">
+                  <div className="px-3 py-2 bg-[var(--surface-2)] flex items-center justify-between">
+                    <span className="text-[10px] font-bold uppercase tracking-[0.06em] text-[var(--text-label)]">Trip Telemetry</span>
+                    <span className="text-[10px] text-[var(--text-muted)]">Estimated</span>
+                  </div>
+                  <div className="grid grid-cols-3 divide-x divide-[var(--border-subtle)] bg-[var(--surface-1)]">
+                    <div className="py-3 px-3 flex flex-col items-center gap-1">
+                      <span className="text-[9px] font-semibold uppercase tracking-[0.05em] text-[var(--text-muted)]">At Dest.</span>
+                      <span className="text-[17px] font-bold tabular-nums" style={{ color: ringColor }}>
+                        {(route.routePoints[route.routePoints.length - 1]?.predictedBatteryPercent ?? 0).toFixed(0)}%
+                      </span>
+                      <span className="text-[9px] text-[var(--text-muted)]">battery</span>
+                    </div>
+                    <div className="py-3 px-3 flex flex-col items-center gap-1">
+                      <span className="text-[9px] font-semibold uppercase tracking-[0.05em] text-[var(--text-muted)]">Distance</span>
+                      <span className="text-[17px] font-bold tabular-nums text-[var(--text-primary)]">{route.distanceKm.toFixed(0)}</span>
+                      <span className="text-[9px] text-[var(--text-muted)]">km</span>
+                    </div>
+                    <div className="py-3 px-3 flex flex-col items-center gap-1">
+                      <span className="text-[9px] font-semibold uppercase tracking-[0.05em] text-[var(--text-muted)]">Net Range</span>
+                      <span className="text-[17px] font-bold tabular-nums" style={{ color: ringColor }}>{remainingRange}</span>
+                      <span className="text-[9px] text-[var(--text-muted)]">km avail.</span>
+                    </div>
+                  </div>
+                  {/* Battery drain bar */}
+                  <div className="h-[3px] bg-[var(--surface-3)]">
+                    <div className="h-full transition-all duration-500" style={{ width: `${rangePercent}%`, background: ringColor }} />
+                  </div>
+                </div>
+              )}
             </div>
           </>
         ) : (
@@ -413,6 +462,20 @@ const Sidebar = React.memo(function Sidebar() {
         )}
 
       </div>
+
+      {/* ── Scroll hint — gradient + bouncing chevron, hidden once user reaches bottom ── */}
+      {showScrollHint && (
+        <div
+          className="pointer-events-none absolute left-0 right-0 flex justify-center items-end pb-[var(--chart-h-mobile,60px)]"
+          style={{
+            bottom: 'var(--sidebar-footer-h, 44px)',
+            height: 56,
+            background: 'linear-gradient(to bottom, transparent, var(--glass-bg) 85%)',
+          }}
+        >
+          <ChevronDown size={15} style={{ color: 'var(--text-muted)', animation: 'bounce 1.4s infinite' }} />
+        </div>
+      )}
 
       {/* ─── FOOTER ─── */}
       <div className="sidebar-footer mt-auto">
