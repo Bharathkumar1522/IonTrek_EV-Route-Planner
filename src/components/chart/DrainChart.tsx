@@ -121,13 +121,13 @@ const DrainChart = React.memo(function DrainChart() {
 
   return (
     <div style={{ width: '100%', height: '100%', padding: '14px 18px 10px', display: 'flex', flexDirection: 'column' }}>
-      <div className="chart-header">
+      <div className="chart-header flex-col md:flex-row items-start md:items-center">
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <div className="section-label" style={{ color: 'var(--accent)' }}>
+          <div className="section-label hidden md:block" style={{ color: 'var(--accent)' }}>
             Terrain & Battery Telemetry
           </div>
         </div>
-        <div className="chart-legend">
+        <div className="chart-legend flex-wrap md:flex-nowrap w-full md:w-auto" style={{ marginTop: '0', gap: '10px' }}>
           <div className="chart-legend-item">
             <div className="chart-legend-dot" style={{ background: accentColor, opacity: 0.8 }} />
             <span>Elevation (m)</span>
@@ -136,11 +136,11 @@ const DrainChart = React.memo(function DrainChart() {
             <div className="chart-legend-dot" style={{ background: lastBattColor }} />
             <span>Battery (%)</span>
           </div>
-          <div className="status-pill" style={{
+          <div className="status-pill ml-auto" style={{
             color: lastBattColor,
             background: `color-mix(in srgb, ${lastBattColor} 8%, transparent)`,
             border: `1px solid color-mix(in srgb, ${lastBattColor} 20%, transparent)`,
-            padding: '3px 8px', fontSize: 10, fontWeight: 600,
+            padding: '2px 6px', fontSize: 10, fontWeight: 600, whiteSpace: 'nowrap'
           }}>
             {lastBattery.toFixed(0)}% at dest.
           </div>
@@ -164,10 +164,14 @@ const DrainChart = React.memo(function DrainChart() {
             <CartesianGrid strokeDasharray="4 4" stroke={gridColor} vertical={false} />
             <XAxis 
               dataKey="distanceKm" 
-              tick={{ fill: axisColor, fontSize: 10, fontWeight: 600 }} 
-              stroke="transparent" 
-              tickFormatter={(val) => `${Math.round(val)} km`}
-              interval={Math.floor(chartData.length / 5)} 
+              type="number" 
+              domain={[0, 'dataMax']}
+              tickFormatter={(v) => `${v.toFixed(0)} km`}
+              stroke="var(--text-muted)" 
+              fontSize={10} 
+              tickLine={false} 
+              axisLine={{ stroke: 'var(--border-subtle)' }}
+              minTickGap={20}
             />
             <YAxis 
               yAxisId="elevation" 

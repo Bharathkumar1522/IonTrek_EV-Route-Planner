@@ -5,7 +5,7 @@ import { useEVStore, getEVTypeInfo } from '@/store/useEVStore';
 import { useThemeStore } from '@/store/useThemeStore';
 import {
   Thermometer, Wind, Weight, ChevronDown, Zap, Car,
-  AlertTriangle, CheckCircle2, Sun, Moon, MapPin, BatteryCharging, Navigation, Activity
+  AlertTriangle, CheckCircle2, Sun, Moon, MapPin, BatteryCharging, Navigation, Activity, Map
 } from 'lucide-react';
 import LocationSearch from './LocationSearch';
 import VehicleSearch from './VehicleSearch';
@@ -125,13 +125,15 @@ const Sidebar = React.memo(function Sidebar() {
         <div className="flex rounded-[10px] p-1 bg-[var(--surface-2)] border border-[var(--border-subtle)] mt-1 mb-4">
           <button
             onClick={() => { tick(); setActiveTab('planner'); }}
-            className={`flex-1 py-1.5 text-[12px] font-semibold rounded-[6px] transition-all ${
+            className={`flex-1 py-1.5 text-[12px] font-semibold rounded-[6px] transition-all flex items-center justify-center gap-1.5 ${
               activeTab === 'planner'
                 ? 'bg-[var(--surface-1)] text-[var(--text-primary)] shadow-sm'
                 : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
             }`}
           >
-            Trip Planner
+            <Map size={13} className="md:hidden" />
+            <span className="hidden md:inline">Trip Planner</span>
+            <span className="md:hidden">Route</span>
           </button>
           <button
             onClick={() => { tick(); setActiveTab('stations'); }}
@@ -141,8 +143,9 @@ const Sidebar = React.memo(function Sidebar() {
                 : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
             }`}
           >
-            <BatteryCharging size={13} />
-            Chargers {route.stations?.length > 0 && `(${route.stations.length})`}
+            <BatteryCharging size={13} className="md:hidden" />
+            <span className="hidden md:inline">Chargers {route.stations?.length > 0 && `(${route.stations.length})`}</span>
+            <span className="md:hidden">Stops {route.stations?.length > 0 && `(${route.stations.length})`}</span>
           </button>
           {hasDistance && (
             <button
@@ -153,8 +156,8 @@ const Sidebar = React.memo(function Sidebar() {
                   : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
               }`}
             >
-              <Activity size={13} />
-              Telemetry
+              <Activity size={13} className="md:hidden" />
+              <span className="md:hidden">Graph</span>
             </button>
           )}
         </div>
