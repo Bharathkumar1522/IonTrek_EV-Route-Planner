@@ -5,7 +5,7 @@ import { useEVStore, getEVTypeInfo } from '@/store/useEVStore';
 import { useThemeStore } from '@/store/useThemeStore';
 import {
   Thermometer, Wind, Weight, ChevronDown, Zap, Car,
-  AlertTriangle, CheckCircle2, Sun, Moon, MapPin, BatteryCharging, Navigation
+  AlertTriangle, CheckCircle2, Sun, Moon, MapPin, BatteryCharging, Navigation, Activity
 } from 'lucide-react';
 import LocationSearch from './LocationSearch';
 import VehicleSearch from './VehicleSearch';
@@ -33,7 +33,7 @@ const Sidebar = React.memo(function Sidebar() {
   const { tick, light, medium, success } = useHaptic();
   const isLight = theme === 'light';
 
-  const [activeTab, setActiveTab] = useState<'planner' | 'stations'>('planner');
+  const [activeTab, setActiveTab] = useState<'planner' | 'stations' | 'telemetry'>('planner');
 
   const [startLoc, setStartLoc] = useState<LocationFeature | null>(null);
   const [endLoc, setEndLoc] = useState<LocationFeature | null>(null);
@@ -144,6 +144,19 @@ const Sidebar = React.memo(function Sidebar() {
             <BatteryCharging size={13} />
             Chargers {route.stations?.length > 0 && `(${route.stations.length})`}
           </button>
+          {hasDistance && (
+            <button
+              onClick={() => { tick(); setActiveTab('telemetry'); }}
+              className={`md:hidden flex-1 py-1.5 text-[12px] font-semibold rounded-[6px] transition-all flex items-center justify-center gap-1.5 ${
+                activeTab === 'telemetry'
+                  ? 'bg-[var(--surface-1)] text-[var(--text-primary)] shadow-sm'
+                  : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
+              }`}
+            >
+              <Activity size={13} />
+              Telemetry
+            </button>
+          )}
         </div>
       </div>
 
@@ -416,16 +429,16 @@ const Sidebar = React.memo(function Sidebar() {
                   <div className="h-[3px] bg-[var(--surface-3)]">
                     <div className="h-full transition-all duration-500" style={{ width: `${rangePercent}%`, background: ringColor }} />
                   </div>
-                  {/* Embedded Mobile Chart */}
-                  <div className="h-[220px] bg-[var(--surface-0)] border-t border-[var(--border-subtle)]">
-                    <Suspense fallback={<ChartFallback />}>
-                      <DrainChart />
-                    </Suspense>
-                  </div>
                 </div>
               )}
             </div>
           </>
+        ) : activeTab === 'telemetry' ? (
+          <div className="flex flex-col h-full bg-[var(--surface-0)] rounded-xl overflow-hidden mt-2 mx-4 mb-4 border border-[var(--border-subtle)] min-h-[350px]">
+            <Suspense fallback={<ChartFallback />}>
+              <DrainChart />
+            </Suspense>
+          </div>
         ) : (
           <div className="p-5">
             <div className="mb-[14px]">
