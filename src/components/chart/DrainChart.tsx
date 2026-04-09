@@ -120,7 +120,7 @@ const DrainChart = React.memo(function DrainChart() {
   }
 
   return (
-    <div style={{ width: '100%', height: '100%', padding: '14px 18px 10px', display: 'flex', flexDirection: 'column' }}>
+    <div className="w-full h-full flex flex-col pt-4 pb-2 px-2 md:px-5">
       <div className="chart-header flex-col md:flex-row items-start md:items-center">
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <div className="section-label hidden md:block" style={{ color: 'var(--accent)' }}>
@@ -151,7 +151,7 @@ const DrainChart = React.memo(function DrainChart() {
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart 
             data={chartData} 
-            margin={{ top: 10, right: 10, bottom: 0, left: -20 }}
+            margin={{ top: 10, right: 0, bottom: 0, left: 0 }}
             onMouseMove={handleMouseMove}
             onMouseLeave={() => setHoveredDistanceKm(null)}
           >
@@ -176,6 +176,7 @@ const DrainChart = React.memo(function DrainChart() {
             <YAxis 
               yAxisId="elevation" 
               orientation="left" 
+              width={35}
               tick={{ fill: axisColor, fontSize: 10 }} 
               tickFormatter={(val) => `${val}m`}
               stroke="transparent" 
@@ -184,6 +185,7 @@ const DrainChart = React.memo(function DrainChart() {
               yAxisId="battery" 
               orientation="right" 
               domain={[0, 100]} 
+              width={35}
               tick={{ fill: axisColor, fontSize: 10, fontWeight: 600 }} 
               tickFormatter={(val) => `${val}%`}
               stroke="transparent" 

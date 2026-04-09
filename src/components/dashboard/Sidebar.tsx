@@ -437,7 +437,7 @@ const Sidebar = React.memo(function Sidebar() {
             </div>
           </>
         ) : activeTab === 'telemetry' ? (
-          <div className="flex flex-col h-full bg-[var(--surface-0)] rounded-xl overflow-hidden mt-2 mx-4 mb-4 border border-[var(--border-subtle)] min-h-[350px]">
+          <div className="flex flex-col h-full bg-[var(--surface-0)] rounded-xl overflow-hidden mt-2 mx-2 mb-4 border border-[var(--border-subtle)] min-h-[350px]">
             <Suspense fallback={<ChartFallback />}>
               <DrainChart />
             </Suspense>
