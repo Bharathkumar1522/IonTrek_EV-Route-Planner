@@ -158,7 +158,7 @@ export default function Home() {
             padding: '0 16px',
             zIndex: 9999,
             pointerEvents: 'none',
-            animation: 'slideUpIn 0.35s cubic-bezier(0.34,1.56,0.64,1) both',
+            animation: 'slideUpInCentered 0.35s cubic-bezier(0.34,1.56,0.64,1) both',
           }}
         >
           <div

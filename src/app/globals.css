@@ -1022,6 +1022,11 @@
   to   { opacity: 1; transform: translate(-50%, 0) scale(1); }
 }
 
+@keyframes slideUpInCentered {
+  from { opacity: 0; transform: translateY(16px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
 /* ═══════════════════════════════════════════
    LOADING SCREEN
    ═══════════════════════════════════════════ */
