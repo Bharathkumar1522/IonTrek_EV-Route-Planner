@@ -148,15 +148,28 @@ export default function Home() {
       {/* ─── RANGE ANXIETY TOAST ─── */}
       {visibleToast && (
         <div
-          className="absolute bottom-4 md:bottom-[calc(var(--chart-h)+24px)] left-0 right-0 z-50 pointer-events-none flex justify-center px-4"
-          style={{ animation: 'slideUpIn 0.35s cubic-bezier(0.34,1.56,0.64,1) both' }}
+          style={{
+            position: 'fixed',
+            bottom: 16,
+            left: 0,
+            right: 0,
+            display: 'flex',
+            justifyContent: 'center',
+            padding: '0 16px',
+            zIndex: 9999,
+            pointerEvents: 'none',
+            animation: 'slideUpIn 0.35s cubic-bezier(0.34,1.56,0.64,1) both',
+          }}
         >
           <div
-            className="pointer-events-auto glass-panel flex items-start gap-3 px-4 py-3 w-full max-w-[420px]"
             style={{
+              pointerEvents: 'auto',
+              width: '100%',
+              maxWidth: 420,
               borderColor: 'rgba(251,191,36,0.3)',
               boxShadow: '0 8px 32px rgba(251,191,36,0.15), 0 2px 8px rgba(0,0,0,0.3)',
             }}
+            className="glass-panel flex items-start gap-3 px-4 py-3"
           >
             {/* Icon */}
             <div
