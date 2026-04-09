@@ -10,11 +10,13 @@ import {
 import LocationSearch from './LocationSearch';
 import VehicleSearch from './VehicleSearch';
 import { LocationFeature } from '@/lib/maptiler';
+import { useHaptic } from '@/lib/useHaptic';
 import Image from 'next/image';
 
 const Sidebar = React.memo(function Sidebar() {
   const { selectedEV, environment, setEnvironment, route, setRoute, calculateRangeAtTemp, addWaypoint } = useEVStore();
   const { theme, toggleTheme } = useThemeStore();
+  const { tick, light, medium } = useHaptic();
   const isLight = theme === 'light';
 
   const [activeTab, setActiveTab] = useState<'planner' | 'stations'>('planner');
@@ -216,7 +218,7 @@ const Sidebar = React.memo(function Sidebar() {
                     </div>
                   </div>
                   <input type="range" min="0" max="300" step="10" value={environment.passengerWeight}
-                    onChange={(e) => setEnvironment({ passengerWeight: parseInt(e.target.value) })}
+                    onChange={(e) => { tick(); setEnvironment({ passengerWeight: parseInt(e.target.value) }); }}
                     style={{ width: '100%', accentColor: 'var(--success)' }}
                   />
                   <div className="slider-labels">
@@ -241,7 +243,7 @@ const Sidebar = React.memo(function Sidebar() {
                     </div>
                     <button
                       title="Toggle AC"
-                      onClick={() => setEnvironment({ acStatus: !environment.acStatus })}
+                      onClick={() => { environment.acStatus ? medium() : light(); setEnvironment({ acStatus: !environment.acStatus }); }}
                       className={`toggle-track ${environment.acStatus ? 'on' : ''}`}
                     >
                       <div className="toggle-thumb" />
