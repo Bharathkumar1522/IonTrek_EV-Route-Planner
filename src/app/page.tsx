@@ -148,11 +148,11 @@ export default function Home() {
       {/* ─── RANGE ANXIETY TOAST ─── */}
       {visibleToast && (
         <div
-          className="absolute bottom-4 md:bottom-[calc(var(--chart-h)+24px)] left-3 right-3 md:left-1/2 md:right-auto md:-translate-x-1/2 z-50 pointer-events-auto flex justify-center"
-          style={{ animation: 'slideUpIn 0.35s cubic-bezier(0.34,1.56,0.64,1) both' }}
+          className="absolute bottom-4 md:bottom-[calc(var(--chart-h)+24px)] inset-x-0 mx-auto z-50 pointer-events-auto px-4"
+          style={{ maxWidth: 460, animation: 'slideUpIn 0.35s cubic-bezier(0.34,1.56,0.64,1) both' }}
         >
           <div
-            className="glass-panel flex items-start gap-3 px-4 py-3 w-full md:w-auto max-w-[420px]"
+            className="glass-panel flex items-start gap-3 px-4 py-3 w-full"
             style={{
               borderColor: 'rgba(251,191,36,0.3)',
               boxShadow: '0 8px 32px rgba(251,191,36,0.15), 0 2px 8px rgba(0,0,0,0.3)',
@@ -187,6 +187,7 @@ export default function Home() {
           </div>
         </div>
       )}
+
 
     </main>
     </>
